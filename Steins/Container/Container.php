@@ -77,6 +77,11 @@ class Container
             elseif ($abstract instanceof ReflectionClass){
                 $ref = $abstract;
             }
+            elseif ($abstract instanceof Closure){
+                return $abstract(
+                    $this, $context
+                );
+            }
             else{
                 return $abstract;
             }
@@ -169,6 +174,12 @@ class Container
 
     }
 
+    /**
+     * 寻找接口或抽象类对应的实现类
+     * @param $abstract
+     * @return mixed|null
+     * @author: Mitsuha
+     */
     public function findConcrete($abstract)
     {
         $abstract = $abstract instanceof ReflectionClass ? $abstract->getName(): $abstract;

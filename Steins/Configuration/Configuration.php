@@ -38,7 +38,7 @@ class Configuration implements ConfigInstance
 
         while (false !== ($file = readdir($dir))){
             if (str_ends_with($file, '.php')){
-                $this->config[str_replace('.php', '', $file)] = require_once ($path . $file);
+                $this->config[str_replace('.php', '', $file)] = require ($path . $file);
             }
         }
     }
