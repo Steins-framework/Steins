@@ -39,4 +39,14 @@ class ContainerTest extends TestCase
 
         $this->assertInstanceOf(Kernel::class, $kernel);
     }
+
+    public function test_instance_is_the_same_in_singleton_mode()
+    {
+        $this->app->singleton(KernelInterface::class, Kernel::class);
+
+        $x = $this->app->make(KernelInterface::class);
+        $y = $this->app->make(KernelInterface::class);
+
+        $this->assertTrue($x === $y);
+    }
 }

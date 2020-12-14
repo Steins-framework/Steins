@@ -89,10 +89,12 @@ class Container
             if ($this->resolved($ref->getName())){
                 return $this->singleton[$ref->getName()];
             }
-
             if (! $ref->isInstantiable()){
                 if (null !== $concrete = $this->findConcrete($abstract)){
-                    return $this->resolve($concrete, $context);
+                    return $this->saveInstanceIfIsSingleton(
+                        $abstract,
+                        $this->resolve($concrete, $context)
+                    );
                 }
 
                 throw new \Exception("Unable to resolve the dependency of [{$ref->getName()}]");
@@ -101,7 +103,10 @@ class Container
             $constructor = $ref->getConstructor();
 
             if ($constructor === null){
-                return $ref->newInstance();
+                return $this->saveInstanceIfIsSingleton(
+                    $abstract,
+                    $ref->newInstance()
+                );
             }
 
             $dependencies = array();
@@ -125,7 +130,10 @@ class Container
 
                 $dependencies[] = $this->resolve($dependClass);
             }
-            return $ref->newInstanceArgs($dependencies);
+            return $this->saveInstanceIfIsSingleton(
+                $abstract,
+                $ref->newInstanceArgs($dependencies)
+            );
 
         } catch (\ReflectionException $e) {
             dd('Exception', $e);
@@ -172,6 +180,19 @@ class Container
 
     public function ResolveDependencies(){
 
+    }
+
+    public function saveInstanceIfIsSingleton($abstract, $instance)
+    {
+        if (is_string($abstract) && $this->isSingleton($abstract)){
+            $this->singleton[$abstract] = $instance;
+        }
+        return $instance;
+    }
+
+    public function isSingleton(string $abstract):bool
+    {
+        return array_key_exists($abstract, $this->shared);
     }
 
     /**
